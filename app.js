@@ -198,4 +198,15 @@ async function detalhesArquivo(id) {
                 <div class="text-left bg-slate-50 p-5 rounded-xl border border-slate-200 mt-2 text-sm shadow-inner">
                     <p class="mb-3 border-b border-slate-200 pb-2"><i class="fas fa-file-signature text-indigo-400 mr-2"></i><strong>Nome:</strong> <br><span class="text-slate-600 break-all">${data.nome || id}</span></p>
                     <p class="mb-3 border-b border-slate-200 pb-2"><i class="fas fa-weight-hanging text-indigo-400 mr-2"></i><strong>Tamanho:</strong> <br><span class="text-slate-600">${data.tamanho || 'N/A'} bytes</span></p>
-                    <p><i class="fas fa-calendar-alt text-indigo-400
+                    <p><i class="fas fa-calendar-alt text-indigo-400 mr-2"></i><strong>Criação:</strong> <br><span class="text-slate-600">${data.data_criacao || 'N/A'}</span></p>
+                </div>
+            `,
+            icon: 'info',
+            confirmButtonColor: '#4f46e5'
+        });
+    } catch (error) {
+        Swal.fire('Erro', 'Falha ao buscar detalhes.', 'error');
+    }
+}
+
+window.onload = listarArquivos;
