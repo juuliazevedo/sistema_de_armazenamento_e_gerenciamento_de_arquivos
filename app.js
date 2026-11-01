@@ -129,16 +129,17 @@ async function fazerUpload() {
         });
         
         const data = await responseUrl.json();
-        const uploadUrl = data.url_upload || data.uploadUrl || data.url || data.signedUrl || data.link;
+        const uploadUrl = data.url_upload;
 
-        if (!uploadUrl || typeof uploadUrl !== 'string' || !uploadUrl.startsWith('http')) {
-            Swal.fire('Erro', 'A API não retornou um link válido. Resposta: ' + JSON.stringify(data), 'error');
+        if (!uploadUrl) {
+            Swal.fire('Erro', 'A API não retornou a url de upload.', 'error');
             return;
         }
 
         const uploadS3 = await fetch(uploadUrl, {
             method: 'PUT',
-            body: file
+            body: file,
+            headers: { 'Content-Type': file.type }
         });
 
         if(uploadS3.ok) {
@@ -161,26 +162,22 @@ async function fazerUpload() {
 async function baixarArquivo(nome) {
     Toast.fire({ icon: 'info', title: 'Gerando link seguro...' });
     try {
-        let response = await fetch(`${API_BASE_URL}/arquivos/download-url`, {
+        const response = await fetch(`${API_BASE_URL}/arquivos/download-url`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nome: nome })
         });
-
-        if (!response.ok) {
-            response = await fetch(`${API_BASE_URL}/arquivos/${encodeURIComponent(nome)}/download-url`);
-        }
         
         const data = await response.json();
-        const downloadUrl = data.url_download || data.downloadUrl || data.url || data.signedUrl || data.link || Object.values(data)[0];
+        const downloadUrl = data.url_download;
 
-        if (downloadUrl && typeof downloadUrl === 'string' && downloadUrl.startsWith('http')) {
+        if (downloadUrl) {
             window.open(downloadUrl, '_blank');
         } else {
-            Swal.fire('Erro', 'Resposta do download: ' + JSON.stringify(data), 'error');
+            Swal.fire('Erro', 'Não foi possível obter o link de download.', 'error');
         }
     } catch (error) {
-        Swal.fire('Erro', 'Não foi possível baixar.', 'error');
+        Swal.fire('Erro', 'Erro ao requisitar download.', 'error');
     }
 }
 
@@ -197,22 +194,17 @@ async function excluirArquivo(nome) {
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                let response = await fetch(`${API_BASE_URL}/arquivos`, {
+                const response = await fetch(`${API_BASE_URL}/arquivos`, {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ nome: nome })
                 });
 
-                if (!response.ok) {
-                    response = await fetch(`${API_BASE_URL}/arquivos/${encodeURIComponent(nome)}`, { method: 'DELETE' });
-                }
-
                 if (response.ok) {
                     Swal.fire('Excluído!', 'Removido da nuvem.', 'success');
                     listarArquivos(); 
                 } else {
-                    const errData = await response.text();
-                    Swal.fire('Erro!', 'A API recusou a exclusão: ' + errData, 'error');
+                    Swal.fire('Erro!', 'A API recusou a exclusão.', 'error');
                 }
             } catch (error) {
                 Swal.fire('Erro!', 'Ocorreu um erro de conexão.', 'error');
@@ -224,7 +216,11 @@ async function excluirArquivo(nome) {
 async function detalhesArquivo(nome) {
     Swal.fire({ title: 'Buscando dados...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(`${API_BASE_URL}/arquivos/${encodeURIComponent(nome)}`);
+        const response = await fetch(`${API_BASE_URL}/arquivos`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome: nome })
+        });
         const data = await response.json();
         
         Swal.fire({
@@ -232,7 +228,8 @@ async function detalhesArquivo(nome) {
             html: `
                 <div class="text-left bg-slate-50 p-5 rounded-xl border border-slate-200 mt-2 text-sm shadow-inner">
                     <p class="mb-3 border-b border-slate-200 pb-2"><i class="fas fa-file-signature text-indigo-400 mr-2"></i><strong>Nome:</strong> <br><span class="text-slate-600 break-all">${data.nome || nome}</span></p>
-                    <p class="mb-3 border-b border-slate-200 pb-2"><i class="fas fa-weight-hanging text-indigo-400 mr-2"></i><strong>Tamanho:</strong> <br><span class="text-slate-600">${data.tamanho || 'N/A'} bytes</span></p>
+                    <p class="mb-3 border-b border-slate-200 pb-2"><i class="fas fa-weight-hanging text-indigo-400 mr-2"></i><strong>Tamanho:</strong> <br><span class="text-slate-600">${data.tamanho_bytes || 'N/A'} bytes</span></p>
+                    <p><i class="fas fa-calendar-alt text-indigo-400 mr-2"></i><strong>Modificação:</strong> <br><span class="text-slate-600">${data.ultima_modificacao || 'N/A'}</span></p>
                 </div>
             `,
             icon: 'info',
