@@ -129,7 +129,14 @@ async function fazerUpload() {
         });
         
         const data = await responseUrl.json();
-        const uploadUrl = data.uploadUrl || data.url;
+        
+        // Procura automaticamente por qualquer chave que pareça um URL na resposta da API
+        const uploadUrl = data.uploadUrl || data.url || data.signedUrl || data.link || data.message || Object.values(data)[0];
+
+        if (!uploadUrl || typeof uploadUrl !== 'string' || !uploadUrl.startsWith('http')) {
+            Swal.fire('Erro', 'A API não retornou um link válido. Resposta: ' + JSON.stringify(data), 'error');
+            return;
+        }
 
         const uploadS3 = await fetch(uploadUrl, {
             method: 'PUT',
@@ -158,7 +165,7 @@ async function baixarArquivo(id) {
     try {
         const response = await fetch(`${API_BASE_URL}/arquivos/${id}/download-url`);
         const data = await response.json();
-        const downloadUrl = data.downloadUrl || data.url;
+        const downloadUrl = data.downloadUrl || data.url || data.signedUrl || data.link || Object.values(data)[0];
         window.open(downloadUrl, '_blank'); 
     } catch (error) {
         Swal.fire('Erro', 'Não foi possível baixar.', 'error');
