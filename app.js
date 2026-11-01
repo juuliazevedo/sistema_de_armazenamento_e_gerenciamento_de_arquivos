@@ -169,7 +169,7 @@ async function baixarArquivo(nome) {
         }
         
         const data = await response.json();
-        const downloadUrl = data.url_download || data.downloadUrl;
+        const downloadUrl = data.url_download || data.downloadUrl || data.url;
 
         if (downloadUrl) {
             window.open(downloadUrl, '_blank');
@@ -177,7 +177,7 @@ async function baixarArquivo(nome) {
             Swal.fire('Erro', 'Não foi possível obter o link de download.', 'error');
         }
     } catch (error) {
-        Swal.fire('Erro', 'Erro ao requisitar download.', 'error');
+        Toast.fire({ icon: 'Erro', title: 'Erro ao requisitar download.' });
     }
 }
 
