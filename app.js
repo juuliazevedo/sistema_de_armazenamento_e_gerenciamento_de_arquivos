@@ -122,7 +122,6 @@ async function fazerUpload() {
     btnUpload.classList.add('opacity-75', 'cursor-not-allowed');
     
     try {
-        // Agora enviamos o campo "nome" exatamente como a API da equipa exige
         const responseUrl = await fetch(`${API_BASE_URL}/arquivos/upload-url`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -130,7 +129,9 @@ async function fazerUpload() {
         });
         
         const data = await responseUrl.json();
-        const uploadUrl = data.uploadUrl || data.url || data.signedUrl || data.link || Object.values(data)[0];
+        
+        // Agora lê corretamente a propriedade "url_upload" enviada pela equipa
+        const uploadUrl = data.url_upload || data.uploadUrl || data.url || data.signedUrl || data.link;
 
         if (!uploadUrl || typeof uploadUrl !== 'string' || !uploadUrl.startsWith('http')) {
             Swal.fire('Erro', 'A API não retornou um link válido. Resposta: ' + JSON.stringify(data), 'error');
@@ -164,7 +165,7 @@ async function baixarArquivo(id) {
     try {
         const response = await fetch(`${API_BASE_URL}/arquivos/${id}/download-url`);
         const data = await response.json();
-        const downloadUrl = data.downloadUrl || data.url || data.signedUrl || data.link || Object.values(data)[0];
+        const downloadUrl = data.url_download || data.downloadUrl || data.url || data.signedUrl || data.link;
         window.open(downloadUrl, '_blank'); 
     } catch (error) {
         Swal.fire('Erro', 'Não foi possível baixar.', 'error');
