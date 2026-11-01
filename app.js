@@ -162,11 +162,11 @@ async function fazerUpload() {
 async function baixarArquivo(nome) {
     Toast.fire({ icon: 'info', title: 'Gerando link seguro...' });
     try {
-        let response = await fetch(`${API_BASE_URL}/arquivos/download-url?nome=${encodeURIComponent(nome)}`);
-        
-        if (!response.ok) {
-            response = await fetch(`${API_BASE_URL}/arquivos/${encodeURIComponent(nome)}/download-url`);
-        }
+        const response = await fetch(`${API_BASE_URL}/arquivos/download-url`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome: nome })
+        });
         
         const data = await response.json();
         const downloadUrl = data.url_download || data.downloadUrl || data.url;
@@ -177,7 +177,7 @@ async function baixarArquivo(nome) {
             Swal.fire('Erro', 'Não foi possível obter o link de download.', 'error');
         }
     } catch (error) {
-        Toast.fire({ icon: 'Erro', title: 'Erro ao requisitar download.' });
+        Swal.fire('Erro', 'Erro ao requisitar download.', 'error');
     }
 }
 
@@ -194,15 +194,11 @@ async function excluirArquivo(nome) {
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                let response = await fetch(`${API_BASE_URL}/arquivos?nome=${encodeURIComponent(nome)}`, {
-                    method: 'DELETE'
+                const response = await fetch(`${API_BASE_URL}/arquivos`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome: nome })
                 });
-
-                if (!response.ok) {
-                    response = await fetch(`${API_BASE_URL}/arquivos/${encodeURIComponent(nome)}`, {
-                        method: 'DELETE'
-                    });
-                }
 
                 if (response.ok) {
                     Swal.fire('Excluído!', 'Removido da nuvem.', 'success');
@@ -220,11 +216,11 @@ async function excluirArquivo(nome) {
 async function detalhesArquivo(nome) {
     Swal.fire({ title: 'Buscando dados...', didOpen: () => Swal.showLoading() });
     try {
-        let response = await fetch(`${API_BASE_URL}/arquivos?nome=${encodeURIComponent(nome)}`);
-
-        if (!response.ok) {
-            response = await fetch(`${API_BASE_URL}/arquivos/${encodeURIComponent(nome)}`);
-        }
+        const response = await fetch(`${API_BASE_URL}/arquivos`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome: nome })
+        });
 
         const data = await response.json();
         
