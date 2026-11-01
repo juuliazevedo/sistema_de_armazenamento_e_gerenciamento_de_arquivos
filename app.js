@@ -122,16 +122,15 @@ async function fazerUpload() {
     btnUpload.classList.add('opacity-75', 'cursor-not-allowed');
     
     try {
+        // Agora enviamos o campo "nome" exatamente como a API da equipa exige
         const responseUrl = await fetch(`${API_BASE_URL}/arquivos/upload-url`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fileName: file.name, fileType: file.type })
+            body: JSON.stringify({ nome: file.name, tipo: file.type })
         });
         
         const data = await responseUrl.json();
-        
-        // Procura automaticamente por qualquer chave que pareça um URL na resposta da API
-        const uploadUrl = data.uploadUrl || data.url || data.signedUrl || data.link || data.message || Object.values(data)[0];
+        const uploadUrl = data.uploadUrl || data.url || data.signedUrl || data.link || Object.values(data)[0];
 
         if (!uploadUrl || typeof uploadUrl !== 'string' || !uploadUrl.startsWith('http')) {
             Swal.fire('Erro', 'A API não retornou um link válido. Resposta: ' + JSON.stringify(data), 'error');
