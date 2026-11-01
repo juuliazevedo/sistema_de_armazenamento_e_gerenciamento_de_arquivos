@@ -129,10 +129,11 @@ async function fazerUpload() {
         });
         
         const data = await responseUrl.json();
-        const uploadS3 = await fetch(data.uploadUrl, {
+        const uploadUrl = data.uploadUrl || data.url;
+
+        const uploadS3 = await fetch(uploadUrl, {
             method: 'PUT',
-            body: file,
-            headers: { 'Content-Type': file.type }
+            body: file
         });
 
         if(uploadS3.ok) {
@@ -157,7 +158,8 @@ async function baixarArquivo(id) {
     try {
         const response = await fetch(`${API_BASE_URL}/arquivos/${id}/download-url`);
         const data = await response.json();
-        window.open(data.downloadUrl, '_blank'); 
+        const downloadUrl = data.downloadUrl || data.url;
+        window.open(downloadUrl, '_blank'); 
     } catch (error) {
         Swal.fire('Erro', 'Não foi possível baixar.', 'error');
     }
