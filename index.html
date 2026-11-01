@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Cloud Manager | Equipe 2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); }
+        .file-drop-zone { transition: all 0.3s ease; border: 2px dashed #cbd5e1; }
+        .file-drop-zone:hover { border-color: #6366f1; background-color: #eef2ff; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
+    
+    <nav class="glass sticky top-0 z-50 border-b border-slate-200 px-6 py-4 shadow-sm">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-r from-indigo-600 to-blue-500 text-white p-2.5 rounded-xl shadow-md">
+                    <i class="fas fa-cloud-arrow-up text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">AWS Storage Hub</h1>
+                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider mt-0.5">Projeto Cloud Computing</p>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center gap-2">
+                <span class="bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-2 shadow-sm">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    API Gateway Online
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sticky top-28">
+                <h2 class="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
+                    <i class="fas fa-upload text-indigo-500"></i> Novo Arquivo
+                </h2>
+                
+                <div id="dropZone" class="file-drop-zone rounded-xl p-8 text-center cursor-pointer mb-5 relative group">
+                    <input type="file" id="fileInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="atualizarNomeArquivo()">
+                    <div class="group-hover:scale-110 transition-transform duration-300">
+                        <i class="fas fa-folder-open text-5xl text-indigo-200 mb-3"></i>
+                    </div>
+                    <p class="text-sm text-slate-600 font-bold">Clique ou arraste um arquivo</p>
+                    <p class="text-xs text-slate-400 mt-2 bg-slate-100 py-1.5 px-3 rounded-md inline-block truncate max-w-full" id="fileNameDisplay">Nenhum selecionado</p>
+                </div>
+
+                <button onclick="fazerUpload()" id="btnUpload" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-xl transition duration-300 shadow-md shadow-indigo-200 flex justify-center items-center gap-2">
+                    <i class="fas fa-paper-plane"></i> Salvar no Bucket S3
+                </button>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 min-h-[500px]">
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-database text-indigo-500"></i> Arquivos Armazenados
+                    </h2>
+                    <button onclick="listarArquivos()" class="text-slate-500 hover:text-indigo-600 bg-slate-50 hover:bg-indigo-50 px-3 py-2 rounded-lg transition text-sm font-bold flex items-center gap-2 border border-slate-200" title="Atualizar">
+                        <i class="fas fa-sync-alt"></i> Atualizar
+                    </button>
+                </div>
+
+                <div id="listaArquivos" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="col-span-full flex flex-col items-center justify-center py-16 text-slate-400">
+                        <i class="fas fa-circle-notch fa-spin text-4xl mb-4 text-indigo-400"></i>
+                        <p class="font-bold text-sm tracking-wide">CONECTANDO A AWS...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
