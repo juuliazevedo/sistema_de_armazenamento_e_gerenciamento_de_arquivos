@@ -161,8 +161,12 @@ async function fazerUpload() {
 async function baixarArquivo(nome) {
     Toast.fire({ icon: 'info', title: 'Gerando link seguro...' });
     try {
-        // Testa chamar passando o nome como parâmetro na query string caso a API espere ?nome=...
-        let response = await fetch(`${API_BASE_URL}/arquivos/download-url?nome=${encodeURIComponent(nome)}`);
+        let response = await fetch(`${API_BASE_URL}/arquivos/download-url`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome: nome })
+        });
+
         if (!response.ok) {
             response = await fetch(`${API_BASE_URL}/arquivos/${encodeURIComponent(nome)}/download-url`);
         }
@@ -193,7 +197,12 @@ async function excluirArquivo(nome) {
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                let response = await fetch(`${API_BASE_URL}/arquivos?nome=${encodeURIComponent(nome)}`, { method: 'DELETE' });
+                let response = await fetch(`${API_BASE_URL}/arquivos`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome: nome })
+                });
+
                 if (!response.ok) {
                     response = await fetch(`${API_BASE_URL}/arquivos/${encodeURIComponent(nome)}`, { method: 'DELETE' });
                 }
