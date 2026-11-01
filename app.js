@@ -162,13 +162,9 @@ async function fazerUpload() {
 async function baixarArquivo(nome) {
     Toast.fire({ icon: 'info', title: 'Gerando link seguro...' });
     try {
-        const response = await fetch(`${API_BASE_URL}/arquivos/download-url`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nome: nome })
-        });
-        
+        const response = await fetch(`${API_BASE_URL}/arquivos/${encodeURIComponent(nome)}/download-url`);
         const data = await response.json();
+        
         const downloadUrl = data.url_download || data.downloadUrl || data.url;
 
         if (downloadUrl) {
@@ -194,10 +190,8 @@ async function excluirArquivo(nome) {
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                const response = await fetch(`${API_BASE_URL}/arquivos`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nome: nome })
+                const response = await fetch(`${API_BASE_URL}/arquivos/${encodeURIComponent(nome)}`, {
+                    method: 'DELETE'
                 });
 
                 if (response.ok) {
@@ -216,12 +210,7 @@ async function excluirArquivo(nome) {
 async function detalhesArquivo(nome) {
     Swal.fire({ title: 'Buscando dados...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(`${API_BASE_URL}/arquivos`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nome: nome })
-        });
-
+        const response = await fetch(`${API_BASE_URL}/arquivos/${encodeURIComponent(nome)}`);
         const data = await response.json();
         
         Swal.fire({
