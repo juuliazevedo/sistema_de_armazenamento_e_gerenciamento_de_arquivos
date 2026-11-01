@@ -129,8 +129,6 @@ async function fazerUpload() {
         });
         
         const data = await responseUrl.json();
-        
-        // Agora lê corretamente a propriedade "url_upload" enviada pela equipa
         const uploadUrl = data.url_upload || data.uploadUrl || data.url || data.signedUrl || data.link;
 
         if (!uploadUrl || typeof uploadUrl !== 'string' || !uploadUrl.startsWith('http')) {
@@ -160,19 +158,29 @@ async function fazerUpload() {
     }
 }
 
-async function baixarArquivo(id) {
+async function baixarArquivo(nome) {
     Toast.fire({ icon: 'info', title: 'Gerando link seguro...' });
     try {
-        const response = await fetch(`${API_BASE_URL}/arquivos/${id}/download-url`);
+        // Testa chamar passando o nome como parâmetro na query string caso a API espere ?nome=...
+        let response = await fetch(`${API_BASE_URL}/arquivos/download-url?nome=${encodeURIComponent(nome)}`);
+        if (!response.ok) {
+            response = await fetch(`${API_BASE_URL}/arquivos/${encodeURIComponent(nome)}/download-url`);
+        }
+        
         const data = await response.json();
-        const downloadUrl = data.url_download || data.downloadUrl || data.url || data.signedUrl || data.link;
-        window.open(downloadUrl, '_blank'); 
+        const downloadUrl = data.url_download || data.downloadUrl || data.url || data.signedUrl || data.link || Object.values(data)[0];
+
+        if (downloadUrl && typeof downloadUrl === 'string' && downloadUrl.startsWith('http')) {
+            window.open(downloadUrl, '_blank');
+        } else {
+            Swal.fire('Erro', 'Resposta do download: ' + JSON.stringify(data), 'error');
+        }
     } catch (error) {
         Swal.fire('Erro', 'Não foi possível baixar.', 'error');
     }
 }
 
-async function excluirArquivo(id) {
+async function excluirArquivo(nome) {
     Swal.fire({
         title: 'Excluir arquivo?',
         text: "Ele será apagado permanentemente do S3!",
@@ -185,27 +193,36 @@ async function excluirArquivo(id) {
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                await fetch(`${API_BASE_URL}/arquivos/${id}`, { method: 'DELETE' });
-                Swal.fire('Excluído!', 'Removido da nuvem.', 'success');
-                listarArquivos(); 
+                let response = await fetch(`${API_BASE_URL}/arquivos?nome=${encodeURIComponent(nome)}`, { method: 'DELETE' });
+                if (!response.ok) {
+                    response = await fetch(`${API_BASE_URL}/arquivos/${encodeURIComponent(nome)}`, { method: 'DELETE' });
+                }
+
+                if (response.ok) {
+                    Swal.fire('Excluído!', 'Removido da nuvem.', 'success');
+                    listarArquivos(); 
+                } else {
+                    const errData = await response.text();
+                    Swal.fire('Erro!', 'A API recusou a exclusão: ' + errData, 'error');
+                }
             } catch (error) {
-                Swal.fire('Erro!', 'Ocorreu um erro.', 'error');
+                Swal.fire('Erro!', 'Ocorreu um erro de conexão.', 'error');
             }
         }
     });
 }
 
-async function detalhesArquivo(id) {
+async function detalhesArquivo(nome) {
     Swal.fire({ title: 'Buscando dados...', didOpen: () => Swal.showLoading() });
     try {
-        const response = await fetch(`${API_BASE_URL}/arquivos/${id}`);
+        const response = await fetch(`${API_BASE_URL}/arquivos/${encodeURIComponent(nome)}`);
         const data = await response.json();
         
         Swal.fire({
             title: 'Metadados',
             html: `
                 <div class="text-left bg-slate-50 p-5 rounded-xl border border-slate-200 mt-2 text-sm shadow-inner">
-                    <p class="mb-3 border-b border-slate-200 pb-2"><i class="fas fa-file-signature text-indigo-400 mr-2"></i><strong>Nome:</strong> <br><span class="text-slate-600 break-all">${data.nome || id}</span></p>
+                    <p class="mb-3 border-b border-slate-200 pb-2"><i class="fas fa-file-signature text-indigo-400 mr-2"></i><strong>Nome:</strong> <br><span class="text-slate-600 break-all">${data.nome || nome}</span></p>
                     <p class="mb-3 border-b border-slate-200 pb-2"><i class="fas fa-weight-hanging text-indigo-400 mr-2"></i><strong>Tamanho:</strong> <br><span class="text-slate-600">${data.tamanho || 'N/A'} bytes</span></p>
                 </div>
             `,
