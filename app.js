@@ -69,7 +69,7 @@ async function listarArquivos() {
         }
 
         arquivos.forEach(arq => {
-            const nome = arq.nome_do_arquivo || arq.id;
+            const nome = arq.nome; 
             const icone = obterIconeArquivo(nome);
             
             const div = document.createElement('div');
@@ -85,13 +85,13 @@ async function listarArquivos() {
                     </div>
                 </div>
                 <div class="grid grid-cols-3 gap-2 border-t border-slate-100 pt-3 mt-auto">
-                    <button onclick="detalhesArquivo('${arq.id}')" class="flex flex-col items-center text-[11px] font-bold uppercase text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 py-2 rounded-lg transition" title="Detalhes">
+                    <button onclick="detalhesArquivo('${nome}')" class="flex flex-col items-center text-[11px] font-bold uppercase text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 py-2 rounded-lg transition" title="Detalhes">
                         <i class="fas fa-info-circle mb-1 text-sm"></i> Info
                     </button>
-                    <button onclick="baixarArquivo('${arq.id}')" class="flex flex-col items-center text-[11px] font-bold uppercase text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 py-2 rounded-lg transition" title="Baixar">
+                    <button onclick="baixarArquivo('${nome}')" class="flex flex-col items-center text-[11px] font-bold uppercase text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 py-2 rounded-lg transition" title="Baixar">
                         <i class="fas fa-cloud-download-alt mb-1 text-sm"></i> Baixar
                     </button>
-                    <button onclick="excluirArquivo('${arq.id}')" class="flex flex-col items-center text-[11px] font-bold uppercase text-slate-500 hover:text-rose-600 hover:bg-rose-50 py-2 rounded-lg transition" title="Apagar">
+                    <button onclick="excluirArquivo('${nome}')" class="flex flex-col items-center text-[11px] font-bold uppercase text-slate-500 hover:text-rose-600 hover:bg-rose-50 py-2 rounded-lg transition" title="Apagar">
                         <i class="fas fa-trash-alt mb-1 text-sm"></i> Excluir
                     </button>
                 </div>
@@ -198,7 +198,6 @@ async function detalhesArquivo(id) {
                 <div class="text-left bg-slate-50 p-5 rounded-xl border border-slate-200 mt-2 text-sm shadow-inner">
                     <p class="mb-3 border-b border-slate-200 pb-2"><i class="fas fa-file-signature text-indigo-400 mr-2"></i><strong>Nome:</strong> <br><span class="text-slate-600 break-all">${data.nome || id}</span></p>
                     <p class="mb-3 border-b border-slate-200 pb-2"><i class="fas fa-weight-hanging text-indigo-400 mr-2"></i><strong>Tamanho:</strong> <br><span class="text-slate-600">${data.tamanho || 'N/A'} bytes</span></p>
-                    <p><i class="fas fa-calendar-alt text-indigo-400 mr-2"></i><strong>Criação:</strong> <br><span class="text-slate-600">${data.data_criacao || 'N/A'}</span></p>
                 </div>
             `,
             icon: 'info',
